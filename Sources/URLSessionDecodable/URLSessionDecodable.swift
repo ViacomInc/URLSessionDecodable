@@ -19,12 +19,13 @@ public enum ParameterEncoding {
 extension URLSession {
 
     public func decodable<T: JSONDecodable, E: Decodable>(
-      method: HTTPMethod,
-      URL: URL,
-      parameters: [String: Any]?,
-      encoding: ParameterEncoding,
-      headers: HTTPHeadersDictionary,
-      completionHandler: @escaping (Result<T, URLSessionDecodableError<E>>) -> Void) -> URLSessionDataTask {
+        method: HTTPMethod,
+        URL: URL,
+        parameters: [String: Any]?,
+        encoding: ParameterEncoding,
+        headers: HTTPHeadersDictionary,
+        completionHandler: @escaping (Result<T, URLSessionDecodableError<E>>) -> Void
+    ) -> URLSessionDataTask {
         let request = self.request(method: method, URL: URL, parameters: parameters, encoding: encoding, headers: headers)
         let task = dataTask(with: request) { data, response, error in
             guard let response = response, let data = data else {
@@ -47,9 +48,10 @@ extension URLSession {
     }
 
     private static func handle<T: JSONDecodable, E: Decodable>(
-      response: HTTPURLResponse,
-      data: Data,
-      url: URL) -> Result<T, URLSessionDecodableError<E>> {
+        response: HTTPURLResponse,
+        data: Data,
+        url: URL
+    ) -> Result<T, URLSessionDecodableError<E>> {
         guard 200...299 ~= response.statusCode else {
             do {
                 let error = try JSONDecoder().decode(E.self, from: data)
@@ -67,11 +69,12 @@ extension URLSession {
     }
 
     private func request(
-      method: HTTPMethod,
-      URL: URL,
-      parameters: [String: Any]?,
-      encoding: ParameterEncoding,
-      headers: HTTPHeadersDictionary) -> URLRequest {
+        method: HTTPMethod,
+        URL: URL,
+        parameters: [String: Any]?,
+        encoding: ParameterEncoding,
+        headers: HTTPHeadersDictionary
+    ) -> URLRequest {
         let body: Data?
         var url = URL
         var headers = headers
@@ -103,4 +106,3 @@ extension URLSession {
     }
 
 }
-
