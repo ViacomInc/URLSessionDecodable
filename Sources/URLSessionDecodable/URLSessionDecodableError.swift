@@ -4,6 +4,7 @@ import Foundation
 
 public enum URLSessionDecodableError<E: Decodable>: Error {
     case unknown
+    case urlSession(Error)
     case deserialization(Deserialization)
     case nonHTTPResponse(URLResponse)
     case serverResponse(E)

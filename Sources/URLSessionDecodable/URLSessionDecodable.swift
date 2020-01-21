@@ -28,7 +28,11 @@ extension URLSession {
         let request = self.request(method: method, URL: URL, parameters: parameters, encoding: encoding, headers: headers)
         let task = dataTask(with: request) { data, response, error in
             guard let response = response, let data = data else {
-                completionHandler(.failure(URLSessionDecodableError.unknown))
+                if let error = error {
+                    completionHandler(.failure(URLSessionDecodableError.urlSession(error)))
+                } else {
+                    completionHandler(.failure(URLSessionDecodableError.unknown))
+                }
                 return
             }
 
@@ -75,7 +79,7 @@ extension URLSession {
         switch encoding {
         case .JSON:
             headers["Content-Type"] = "application/json; charset=utf-8"
-            body = parameters.map { try? JSONSerialization.data(withJSONObject: $0, options: .prettyPrinted) } ?? nil
+            body = parameters.map { try? JSONSerialization.data(withJSONObject: $0) } ?? nil
         case .URL:
             body = nil
             var components = URLComponents(url: URL, resolvingAgainstBaseURL: false)
