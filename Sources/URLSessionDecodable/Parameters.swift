@@ -17,7 +17,7 @@ public protocol ParametersEncoding {
 
 }
 
-// MARK: -
+// MARK: - JSON Encoding
 
 /// Encodes parameters into _body_ as JSON.
 public struct JSONParametersEncoder: ParametersEncoding {
@@ -41,6 +41,8 @@ public struct JSONParametersEncoder: ParametersEncoding {
     }
 
 }
+
+// MARK: - URL Encoding
 
 /// Encodes parameters adding them to the URL.
 public struct URLParametersEncoder: ParametersEncoding {

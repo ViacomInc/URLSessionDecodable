@@ -16,7 +16,20 @@ final class ParametersTests: XCTestCase {
         }
     }
 
+    func testJSONEcoding() {
+        let params: [String: AnyHashable] = [
+            "param1": 1,
+            "param2": "abc"
+        ]
+        let request = URLRequest(url: URL(string: "www.viacom.com/test")!)
+        let encodedRequest = JSONParametersEncoder(parameters: params).encode(into: request)
+        let decoded = try! JSONSerialization.jsonObject(with: encodedRequest.httpBody!) as! [String: AnyHashable]
+        XCTAssertEqual(decoded, params)
+    }
+
     static var allTests = [
         ("testURLEncoding", testURLEncoding),
+        ("testJSONEcoding", testJSONEcoding),
     ]
+
 }
