@@ -16,7 +16,7 @@ extension URLSession {
     public func decodable<T: JSONDecodable, E: Decodable>(
         method: HTTPMethod,
         URL: URL,
-        parameters: Parameters?,
+        parameters: ParametersEncoding?,
         headers: HTTPHeaders,
         completionHandler: @escaping (Result<T, URLSessionDecodableError<E>>) -> Void
     ) -> URLSessionDataTask? {
@@ -65,7 +65,7 @@ extension URLSession {
     private func request(
         method: HTTPMethod,
         URL: URL,
-        parameters: Parameters?,
+        parameters: ParametersEncoding?,
         headers: HTTPHeaders
     ) -> URLRequest {
         var request = URLRequest(url: URL)
@@ -73,7 +73,7 @@ extension URLSession {
         request.httpMethod = method.rawValue
 
         if let parameters = parameters {
-            request = parameters.encoder.encode(into: request)
+            request = parameters.encode(into: request)
         }
 
         return request

@@ -2,50 +2,38 @@
 
 import Foundation
 
-public enum Parameters {
-    case url([String: String])
-    case json([String: Any])
-    case data(data: Data, contentType: String)
-    case custom(encoder: ParametersEncoding)
-}
-
-public struct Body {
-    public let contentType: String
-    public let data: Data
-}
-
 public protocol ParametersEncoding {
+
+    /// Encodes data into `urlRequest`.
+    ///
+    /// Implementations of this method have to perform all required modifications to `urlRequest` and then return
+    /// the modified request.
+    ///
+    /// Initial `url` and `allHTTPHeaderFields` will be already set.
+    ///
+    /// - Parameter urlRequest: The request to modify
+    /// - Returns: A modified instance of `URLRequest`
     func encode(into urlRequest: URLRequest) -> URLRequest
+
 }
 
 // MARK: -
 
-extension Parameters {
+/// Encodes parameters into _body_ as JSON.
+public struct JSONParametersEncoder: ParametersEncoding {
 
-    var encoder: ParametersEncoding {
-        switch self {
-        case .url(let parameters):
-            return URLParametersEncoder(parameters: parameters)
-        case .json(let parameters):
-            return JSONParametersEncoder(parameters: parameters)
-        case .data(let data, let contentType):
-            return DataParametersEncoder(data: data, contentType: contentType)
-        case .custom(let encoder):
-            return encoder
-        }
+    public let parameters: [String: Any]
+
+    /// Creates a new encoder.
+    ///
+    /// - Attention: If `parameters` cannot be encoded as JSON then they will be ignored.
+    ///
+    /// - Parameter parameters: A dictionary of encodable parameters.
+    public init(parameters: [String: Any]) {
+        self.parameters = parameters
     }
 
-}
-
-enum ContentType: String {
-    case json = "application/json; charset=utf-8"
-}
-
-struct JSONParametersEncoder: ParametersEncoding {
-
-    let parameters: [String: Any]
-
-    func encode(into urlRequest: URLRequest) -> URLRequest {
+    public func encode(into urlRequest: URLRequest) -> URLRequest {
         var request = urlRequest
         request.httpBody = try? JSONSerialization.data(withJSONObject: parameters)
         request.allHTTPHeaderFields?["Content-Type"] = ContentType.json.rawValue
@@ -54,11 +42,21 @@ struct JSONParametersEncoder: ParametersEncoding {
 
 }
 
-struct URLParametersEncoder: ParametersEncoding {
+/// Encodes parameters adding them to the URL.
+public struct URLParametersEncoder: ParametersEncoding {
 
-    let parameters: [String: String]
+    public let parameters: [String: String]
 
-    func encode(into urlRequest: URLRequest) -> URLRequest {
+    /// Creates a new encoder.
+    ///
+    /// - Attention: Only `String` parameters are supported now.
+    ///
+    /// - Parameter parameters: A dictionary of parameters.
+    public init(parameters: [String: String]) {
+        self.parameters = parameters
+    }
+
+    public func encode(into urlRequest: URLRequest) -> URLRequest {
         var request = urlRequest
         guard let url = request.url,
               var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
@@ -79,16 +77,8 @@ struct URLParametersEncoder: ParametersEncoding {
 
 }
 
-struct DataParametersEncoder: ParametersEncoding {
+// MARK: -
 
-    let data: Data
-    let contentType: String
-
-    func encode(into urlRequest: URLRequest) -> URLRequest {
-        var request = urlRequest
-        request.httpBody = data
-        request.allHTTPHeaderFields?["Content-Type"] = contentType
-        return request
-    }
-
+private enum ContentType: String {
+    case json = "application/json; charset=utf-8"
 }

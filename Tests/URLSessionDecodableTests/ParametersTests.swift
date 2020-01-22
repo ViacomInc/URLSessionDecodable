@@ -9,7 +9,7 @@ final class ParametersTests: XCTestCase {
             "param2": "abc"
         ]
         let request = URLRequest(url: URL(string: "www.viacom.com/test")!)
-        let encodedUrl = Parameters.url(params).encoder.encode(into: request).url!
+        let encodedUrl = URLParametersEncoder(parameters: params).encode(into: request).url!
         let queryItems = URLComponents(url: encodedUrl, resolvingAgainstBaseURL: false)!.queryItems!
         params.forEach { key, value in
             XCTAssert(queryItems.contains(URLQueryItem(name: key, value: value)))
