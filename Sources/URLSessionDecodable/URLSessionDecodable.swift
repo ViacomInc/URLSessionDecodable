@@ -2,7 +2,7 @@
 
 import Foundation
 
-public typealias HTTPHeadersDictionary = [String: String]
+public typealias HTTPHeaders = [String: String]
 
 public enum HTTPMethod: String {
     case delete
@@ -11,22 +11,16 @@ public enum HTTPMethod: String {
     case put
 }
 
-public enum ParameterEncoding {
-    case URL
-    case JSON
-}
-
 extension URLSession {
 
     public func decodable<T: JSONDecodable, E: Decodable>(
         method: HTTPMethod,
         URL: URL,
-        parameters: [String: Any]?,
-        encoding: ParameterEncoding,
-        headers: HTTPHeadersDictionary,
+        parameters: Parameters?,
+        headers: HTTPHeaders,
         completionHandler: @escaping (Result<T, URLSessionDecodableError<E>>) -> Void
-    ) -> URLSessionDataTask {
-        let request = self.request(method: method, URL: URL, parameters: parameters, encoding: encoding, headers: headers)
+    ) -> URLSessionDataTask? {
+        let request = self.request(method: method, URL: URL, parameters: parameters, headers: headers)
         let task = dataTask(with: request) { data, response, error in
             guard let response = response, let data = data else {
                 if let error = error {
@@ -71,36 +65,16 @@ extension URLSession {
     private func request(
         method: HTTPMethod,
         URL: URL,
-        parameters: [String: Any]?,
-        encoding: ParameterEncoding,
-        headers: HTTPHeadersDictionary
+        parameters: Parameters?,
+        headers: HTTPHeaders
     ) -> URLRequest {
-        let body: Data?
-        var url = URL
-        var headers = headers
-
-        switch encoding {
-        case .JSON:
-            headers["Content-Type"] = "application/json; charset=utf-8"
-            body = parameters.map { try? JSONSerialization.data(withJSONObject: $0) } ?? nil
-        case .URL:
-            body = nil
-            var components = URLComponents(url: URL, resolvingAgainstBaseURL: false)
-            var query: [URLQueryItem] = []
-            parameters?.forEach { (arg) in
-                let (name, value) = arg
-                query.append(URLQueryItem(name: name, value: value as? String))
-            }
-            components?.queryItems = query
-            if let urlWithQuery = components?.url {
-                url = urlWithQuery
-            }
-        }
-
-        var request = URLRequest(url: url)
+        var request = URLRequest(url: URL)
         request.allHTTPHeaderFields = headers
         request.httpMethod = method.rawValue
-        request.httpBody = body
+
+        if let parameters = parameters {
+            request = parameters.encoder.encode(into: request)
+        }
 
         return request
     }
