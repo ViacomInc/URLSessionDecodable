@@ -13,14 +13,20 @@ public enum HTTPMethod: String {
 
 extension URLSession {
 
-    public func decodable<T: JSONDecodable, E: Decodable>(
+    /// Creates a task that retrieves the contents of the specified URL, decodes the response,
+    /// then calls a handler upon completion.
+    ///
+    /// The response data will be decoded to `T` type when `statusCode` is in range `200..<300`
+    /// or `E` for other status codes.
+    public func decodable<T: Decodable, E: Decodable>(
+        with url: URL,
         method: HTTPMethod,
-        URL: URL,
         parameters: ParametersEncoding?,
         headers: HTTPHeaders,
+        decoder: DataDecoder,
         completionHandler: @escaping (Result<T, URLSessionDecodableError<E>>) -> Void
-    ) -> URLSessionDataTask? {
-        let request = self.request(method: method, URL: URL, parameters: parameters, headers: headers)
+    ) -> URLSessionDataTask {
+        let request = self.request(with: url, method: method, parameters: parameters, headers: headers)
         let task = dataTask(with: request) { data, response, error in
             guard let response = response, let data = data else {
                 if let error = error {
@@ -36,19 +42,20 @@ extension URLSession {
                 return
             }
 
-            completionHandler(Self.handle(response: httpResponse, data: data, url: URL))
+            completionHandler(Self.handle(response: httpResponse, data: data, decoder: decoder, url: url))
         }
         return task
     }
 
-    private static func handle<T: JSONDecodable, E: Decodable>(
+    private static func handle<T: Decodable, E: Decodable>(
         response: HTTPURLResponse,
         data: Data,
+        decoder: DataDecoder,
         url: URL
     ) -> Result<T, URLSessionDecodableError<E>> {
-        guard 200...299 ~= response.statusCode else {
+        guard 200..<300 ~= response.statusCode else {
             do {
-                let error = try JSONDecoder().decode(E.self, from: data)
+                let error = try decoder.decode(E.self, from: data)
                 return .failure(.serverResponse(error))
             } catch {
                 return .failure(.unknownServerResponse(URLSessionDecodableError.UnknownServerResponse(statusCode: response.statusCode, url: url, responseBody: data)))
@@ -56,19 +63,19 @@ extension URLSession {
         }
 
         do {
-            return try .success(T.decode(from: data))
+            return try .success(decoder.decode(T.self, from: data))
         } catch {
             return .failure(.deserialization(URLSessionDecodableError.Deserialization(statusCode: response.statusCode, url: url, responseBody: data, underlyingError: error)))
         }
     }
 
     private func request(
+        with url: URL,
         method: HTTPMethod,
-        URL: URL,
         parameters: ParametersEncoding?,
         headers: HTTPHeaders
     ) -> URLRequest {
-        var request = URLRequest(url: URL)
+        var request = URLRequest(url: url)
         request.allHTTPHeaderFields = headers
         request.httpMethod = method.rawValue
 
