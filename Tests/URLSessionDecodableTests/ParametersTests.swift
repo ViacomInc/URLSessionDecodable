@@ -27,9 +27,4 @@ final class ParametersTests: XCTestCase {
         XCTAssertEqual(decoded, params)
     }
 
-    static var allTests = [
-        ("testURLEncoding", testURLEncoding),
-        ("testJSONEcoding", testJSONEcoding),
-    ]
-
 }

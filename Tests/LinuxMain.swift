@@ -3,5 +3,6 @@ import XCTest
 import URLSessionDecodableTests
 
 var tests = [XCTestCaseEntry]()
-tests += URLSessionDecodableTests.allTests()
+tests += URLSessionDecodableTests.__allTests()
+
 XCTMain(tests)
