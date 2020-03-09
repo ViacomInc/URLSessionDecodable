@@ -2,13 +2,12 @@
 
 import Foundation
 
-public enum URLSessionDecodableError<E: Decodable>: Error {
+public enum URLSessionDecodableError: Error {
     case unknown
     case urlSession(Error)
     case deserialization(Deserialization)
     case nonHTTPResponse(URLResponse)
-    case serverResponse(E)
-    case unknownServerResponse(UnknownServerResponse)
+    case serverResponse(ServerResponse)
 
     public struct Deserialization {
         public let statusCode: Int
@@ -17,9 +16,20 @@ public enum URLSessionDecodableError<E: Decodable>: Error {
         public let underlyingError: Error?
     }
 
-    public struct UnknownServerResponse {
+    public struct ServerResponse {
         public let statusCode: Int
         public let url: URL
         public let responseBody: Data
+
+        public func decode<T: Decodable>(using decoder: DataDecoder) throws -> T {
+            return try decoder.decode(T.self, from: responseBody)
+        }
+    }
+
+    public func decodeResponse<T: Decodable>(using decoder: DataDecoder) -> T? {
+        if case .serverResponse(let serverResponse) = self {
+            return try? serverResponse.decode(using: decoder)
+        }
+        return nil
     }
 }
