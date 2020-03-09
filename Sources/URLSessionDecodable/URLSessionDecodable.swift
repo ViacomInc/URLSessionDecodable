@@ -12,19 +12,19 @@ public enum HTTPMethod: String {
 }
 
 extension URLSession {
-
+    //swiftlint:disable function_parameter_count
     /// Creates a task that retrieves the contents of the specified URL, decodes the response,
     /// then calls a handler upon completion.
     ///
     /// The response data will be decoded to `T` type when `statusCode` is in range `200..<300`
     /// or `E` for other status codes.
-    public func decodable<T: Decodable, E: Decodable>(
+    public func decodable<T: Decodable>(
         with url: URL,
         method: HTTPMethod,
         parameters: ParametersEncoding?,
-        headers: HTTPHeaders,
+        headers: HTTPHeaders?,
         decoder: DataDecoder,
-        completionHandler: @escaping (Result<T, URLSessionDecodableError<E>>) -> Void
+        completionHandler: @escaping (Result<T, URLSessionDecodableError>) -> Void
     ) -> URLSessionDataTask {
         let request = self.request(with: url, method: method, parameters: parameters, headers: headers)
         let task = dataTask(with: request) { data, response, error in
@@ -46,20 +46,16 @@ extension URLSession {
         }
         return task
     }
+    //swiftlint:enable function_parameter_count
 
-    private static func handle<T: Decodable, E: Decodable>(
+    private static func handle<T: Decodable>(
         response: HTTPURLResponse,
         data: Data,
         decoder: DataDecoder,
         url: URL
-    ) -> Result<T, URLSessionDecodableError<E>> {
+    ) -> Result<T, URLSessionDecodableError> {
         guard 200..<300 ~= response.statusCode else {
-            do {
-                let error = try decoder.decode(E.self, from: data)
-                return .failure(.serverResponse(error))
-            } catch {
-                return .failure(.unknownServerResponse(URLSessionDecodableError.UnknownServerResponse(statusCode: response.statusCode, url: url, responseBody: data)))
-            }
+            return .failure(.serverResponse(URLSessionDecodableError.ServerResponse(statusCode: response.statusCode, url: url, responseBody: data)))
         }
 
         do {
@@ -73,7 +69,7 @@ extension URLSession {
         with url: URL,
         method: HTTPMethod,
         parameters: ParametersEncoding?,
-        headers: HTTPHeaders
+        headers: HTTPHeaders?
     ) -> URLRequest {
         var request = URLRequest(url: url)
         request.allHTTPHeaderFields = headers

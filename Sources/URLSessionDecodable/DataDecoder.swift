@@ -5,7 +5,7 @@ import Foundation
 public protocol DataDecoder {
 
     /// Decodes an instance of the indicated type.
-    func decode<T>(_ type: T.Type, from data: Data) throws -> T where T : Decodable
+    func decode<T>(_ type: T.Type, from data: Data) throws -> T where T: Decodable
 
 }
 
