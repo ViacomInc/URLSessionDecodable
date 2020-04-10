@@ -16,6 +16,14 @@ final class ParametersTests: XCTestCase {
         }
     }
 
+    func testURLEncodingWithEmptyParameters() {
+        let params = [String: String]()
+        let request = URLRequest(url: URL(string: "www.viacom.com/test")!)
+        let encodedUrl = URLParametersEncoder(parameters: params).encode(into: request).url!
+        XCTAssertFalse(encodedUrl.absoluteString.contains("?"))
+        XCTAssertNil(encodedUrl.query)
+    }
+
     func testJSONEcoding() {
         let params: [String: AnyHashable] = [
             "param1": 1,
