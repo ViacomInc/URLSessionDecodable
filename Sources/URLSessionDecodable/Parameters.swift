@@ -59,12 +59,12 @@ public struct URLParametersEncoder: ParametersEncoding {
     }
 
     public func encode(into urlRequest: URLRequest) -> URLRequest {
-        var request = urlRequest
-        guard let url = request.url,
+        guard !parameters.isEmpty, let url = urlRequest.url,
               var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-            return request
+            return urlRequest
         }
 
+        var request = urlRequest
         var query: [URLQueryItem] = []
         parameters.forEach { name, value in
             query.append(URLQueryItem(name: name, value: value))
