@@ -1,6 +1,6 @@
 # URLSessionDecodable
 
-A swift package for adding a decoding functionality to `URLSession`. It is a very small but handful library, that solves the common pattern of deserialization of a response, and fallback on another message format in case of an HTTP error.
+A swift package for adding decoding functionality to `URLSession`. It is a very small but handful library, that solves the common pattern of deserialization of a response, and fallback on another message format in case of an HTTP error.
 
 We have been using it in some form over the years at former Viacom, now [ViacomCBS](https://www.viacomcbs.com/). Since Swift Package Manager support in Xcode 11.0, we use it on production in several projects.
 
