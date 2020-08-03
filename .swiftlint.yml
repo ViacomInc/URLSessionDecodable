@@ -1,0 +1,2 @@
+excluded:
+  - Tests/URLSessionDecodableTests/XCTestManifests.swift

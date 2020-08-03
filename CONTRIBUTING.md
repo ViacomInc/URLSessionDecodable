@@ -27,7 +27,7 @@ For Linux, all tests to be run are specified under `Tests/URLSessionDecodableTes
 
 **Linting and formatting**
 
-TODO: swiftlint
+We use [SwiftLint](https://github.com/realm/SwiftLint) to take care of proper formatting and linting. You can run the linter from Terminal by following its installation guide and executing `swiftlint` in the repository's root folder.
 
 ## Pull Request Process
 
