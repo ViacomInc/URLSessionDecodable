@@ -8,6 +8,7 @@ extension ParametersTests {
     static let __allTests__ParametersTests = [
         ("testJSONEcoding", testJSONEcoding),
         ("testURLEncoding", testURLEncoding),
+        ("testURLEncodingWithEmptyParameters", testURLEncodingWithEmptyParameters),
     ]
 }
 
