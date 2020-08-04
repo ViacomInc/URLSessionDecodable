@@ -56,16 +56,22 @@ extension URLSession {
         url: URL
     ) -> Result<T, URLSessionDecodableError> {
         guard 200..<300 ~= response.statusCode else {
-            return .failure(.serverResponse(URLSessionDecodableError.ServerResponse(statusCode: response.statusCode, url: url, responseBody: data)))
+            let serverResponse = URLSessionDecodableError.ServerResponse(statusCode: response.statusCode,
+                                                                         url: url,
+                                                                         responseBody: data)
+            return .failure(.serverResponse(serverResponse))
         }
 
         do {
             return try .success(decoder.decode(T.self, from: data))
         } catch {
             if #available(iOS 10.0, *) {
-                os_log("%@","Error while decoding \(String(describing: type(of: T.self))) \(error)")
+                os_log("%@", "Error while decoding \(String(describing: type(of: T.self))) \(error)")
             }
-            return .failure(.deserialization(URLSessionDecodableError.Deserialization(statusCode: response.statusCode, url: url, responseBody: data, underlyingError: error)))
+            let deserializationError = URLSessionDecodableError.Deserialization(statusCode: response.statusCode,
+                                                                                url: url, responseBody: data,
+                                                                                underlyingError: error)
+            return .failure(.deserialization(deserializationError))
         }
     }
 

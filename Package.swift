@@ -13,7 +13,7 @@ let package = Package(
     products: [
         .library(
             name: "URLSessionDecodable",
-            targets: ["URLSessionDecodable"]),
+            targets: ["URLSessionDecodable"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -25,6 +25,6 @@ let package = Package(
             dependencies: []),
         .testTarget(
             name: "URLSessionDecodableTests",
-            dependencies: ["URLSessionDecodable"]),
+            dependencies: ["URLSessionDecodable"])
     ]
 )
