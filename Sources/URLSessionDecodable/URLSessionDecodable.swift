@@ -68,9 +68,7 @@ extension URLSession {
         do {
             return try .success(decoder.decode(T.self, from: data))
         } catch {
-            if #available(iOS 10.0, *) {
-                os_log("%@", "Error while decoding \(String(describing: type(of: T.self))) \(error)")
-            }
+            os_log("%@", "Error while decoding \(String(describing: type(of: T.self))) \(error)")
             let deserializationError = URLSessionDecodableError.Deserialization(statusCode: response.statusCode,
                                                                                 url: url, responseBody: data,
                                                                                 underlyingError: error)
