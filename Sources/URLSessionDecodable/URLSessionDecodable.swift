@@ -31,14 +31,17 @@ extension URLSession {
         let task = dataTask(with: request) { data, response, error in
             guard let response = response, let data = data else {
                 if let error = error {
+                    os_log("%@", "Error while requesting \(String(describing: type(of: T.self))) \(url) - \(error)")
                     completionHandler(.failure(URLSessionDecodableError.urlSession(error)))
                 } else {
+                    os_log("%@", "Unknown error while requesting \(url)))")
                     completionHandler(.failure(URLSessionDecodableError.unknown))
                 }
                 return
             }
 
             guard let httpResponse = response as? HTTPURLResponse else {
+                os_log("%@", "Non-http response \(String(describing: type(of: T.self))) \(url) - \(response)")
                 completionHandler(.failure(URLSessionDecodableError.nonHTTPResponse(response)))
                 return
             }
