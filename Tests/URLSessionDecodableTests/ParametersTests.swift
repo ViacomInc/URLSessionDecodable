@@ -30,10 +30,8 @@ final class ParametersTests: XCTestCase {
             "param2": "abc",
             "param3": "foo"
         ]
-        let urlParameters = queryItems.reduce([String:String]()) { dict, param in
-            var dict = dict
-            dict[param.name] = param.value
-            return dict
+        let urlParameters = queryItems.reduce(into: [:]) { dictionary, param in
+            dictionary[param.name] = param.value
         }
         XCTAssertEqual(expectedParameters, urlParameters)
         XCTAssertEqual(queryItems.count, 4) // params are appended currently
