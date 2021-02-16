@@ -36,6 +36,7 @@ final class ParametersTests: XCTestCase {
             return dict
         }
         XCTAssertEqual(expectedParameters, urlParameters)
+        XCTAssertEqual(queryItems.count, 4) // params are appended currently
     }
 
     func testURLEncodingWithEmptyParameters() {
