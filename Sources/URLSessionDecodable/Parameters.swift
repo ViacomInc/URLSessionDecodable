@@ -65,7 +65,7 @@ public struct URLParametersEncoder: ParametersEncoding {
         }
 
         var request = urlRequest
-        var query: [URLQueryItem] = []
+        var query: [URLQueryItem] = components.queryItems ?? []
         parameters.forEach { name, value in
             query.append(URLQueryItem(name: name, value: value))
         }

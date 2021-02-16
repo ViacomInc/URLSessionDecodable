@@ -16,6 +16,27 @@ final class ParametersTests: XCTestCase {
         }
     }
 
+    func testURLEncodingWithExistingParameters() {
+        let params = [
+            "param1": "1",
+            "param2": "abc"
+        ]
+        let request = URLRequest(url: URL(string: "www.viacom.com/test?param1=0&param3=foo")!)
+        let encodedUrl = URLParametersEncoder(parameters: params).encode(into: request).url!
+        let queryItems = URLComponents(url: encodedUrl, resolvingAgainstBaseURL: false)!.queryItems!
+
+        let expectedParameters: [String: String] = [
+            "param1": "1",
+            "param2": "abc",
+            "param3": "foo"
+        ]
+        let urlParameters = queryItems.reduce(into: [:]) { dictionary, param in
+            dictionary[param.name] = param.value
+        }
+        XCTAssertEqual(expectedParameters, urlParameters)
+        XCTAssertEqual(queryItems.count, 4) // params are appended currently
+    }
+
     func testURLEncodingWithEmptyParameters() {
         let params = [String: String]()
         let request = URLRequest(url: URL(string: "www.viacom.com/test")!)
