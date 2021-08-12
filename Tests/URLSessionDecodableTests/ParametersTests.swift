@@ -56,4 +56,20 @@ final class ParametersTests: XCTestCase {
         XCTAssertEqual(decoded, params)
     }
 
+    func testMergedEncoding() {
+        let params = [
+            "param": "test",
+        ]
+        let encoder = MergedParametersEncoder(encoders: [
+            URLParametersEncoder(parameters: params),
+            JSONParametersEncoder(parameters: params)
+        ])
+        let request = URLRequest(url: URL(string: "www.viacom.com/test")!)
+        let encodedRequest = encoder.encode(into: request)
+        let decoded = try! JSONSerialization.jsonObject(with: encodedRequest.httpBody!) as! [String: String]
+
+        XCTAssertEqual(encodedRequest.url?.query, "param=test")
+        XCTAssertEqual(decoded, params)
+    }
+
 }
