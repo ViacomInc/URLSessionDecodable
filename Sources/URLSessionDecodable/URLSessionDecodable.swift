@@ -13,19 +13,58 @@ public enum HTTPMethod: String {
 }
 
 extension URLSession {
+
     //swiftlint:disable function_parameter_count
+
     /// Creates a task that retrieves the contents of the specified URL, decodes the response,
     /// then calls a handler upon completion.
     ///
-    /// The response data will be decoded to `T` type when `statusCode` is in range `200..<300`
-    /// or `E` for other status codes.
+    /// The response data will be decoded to `T` type when `statusCode` is in range `200..<300`.
+    public func decodable<T, D: ConcreteTypeDecoder>(
+        with url: URL,
+        method: HTTPMethod,
+        parameters: ParametersEncoding?,
+        headers: HTTPHeaders?,
+        decoder: D,
+        completionHandler: @escaping (Result<T, URLSessionDecodableError>) -> Void
+    ) -> URLSessionDataTask where D.DecodedType == T {
+        return createTask(
+            with: url,
+            method: method,
+            parameters: parameters,
+            headers: headers,
+            completionHandler: completionHandler
+        ) { data -> T in
+            try decoder.decode(data)
+        }
+    }
+
     public func decodable<T: Decodable>(
         with url: URL,
         method: HTTPMethod,
         parameters: ParametersEncoding?,
         headers: HTTPHeaders?,
-        decoder: DataDecoder,
+        decoder: AnyTypeDecoder,
         completionHandler: @escaping (Result<T, URLSessionDecodableError>) -> Void
+    ) -> URLSessionDataTask {
+        return createTask(
+            with: url,
+            method: method,
+            parameters: parameters,
+            headers: headers,
+            completionHandler: completionHandler
+        ) { data -> T in
+            try decoder.decode(T.self, from: data)
+        }
+    }
+
+    private func createTask<T>(
+        with url: URL,
+        method: HTTPMethod,
+        parameters: ParametersEncoding?,
+        headers: HTTPHeaders?,
+        completionHandler: @escaping (Result<T, URLSessionDecodableError>) -> Void,
+        decoding: @escaping (Data) throws -> T
     ) -> URLSessionDataTask {
         let request = self.request(with: url, method: method, parameters: parameters, headers: headers)
         let task = dataTask(with: request) { data, response, error in
@@ -45,18 +84,19 @@ extension URLSession {
                 completionHandler(.failure(URLSessionDecodableError.nonHTTPResponse(response)))
                 return
             }
-
-            completionHandler(Self.handle(response: httpResponse, data: data, decoder: decoder, url: url))
+            let result = Self.handle(response: httpResponse, data: data, url: url, decoding: decoding)
+            completionHandler(result)
         }
         return task
     }
+
     //swiftlint:enable function_parameter_count
 
-    private static func handle<T: Decodable>(
+    private static func handle<T>(
         response: HTTPURLResponse,
         data: Data,
-        decoder: DataDecoder,
-        url: URL
+        url: URL,
+        decoding: (Data) throws -> T
     ) -> Result<T, URLSessionDecodableError> {
         guard 200..<300 ~= response.statusCode else {
             let serverResponse = URLSessionDecodableError.ServerResponse(statusCode: response.statusCode,
@@ -66,7 +106,7 @@ extension URLSession {
         }
 
         do {
-            return try .success(decoder.decode(T.self, from: data))
+            return try .success(decoding(data))
         } catch {
             os_log("%@", "Error while decoding \(String(describing: type(of: T.self))) \(error)")
             let deserializationError = URLSessionDecodableError.Deserialization(statusCode: response.statusCode,
