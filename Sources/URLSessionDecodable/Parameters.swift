@@ -90,7 +90,7 @@ private enum ContentType: String {
 /// Merges multiple encoders into one URL request.
 ///
 /// Encoders will encode in the order of the array. Any potential encoding conflicts will be ignored.
-struct MergedParametersEncoder: ParametersEncoding {
+public struct MergedParametersEncoder: ParametersEncoding {
 
     /// The encoders to merge.
     let encoders: [ParametersEncoding]
@@ -102,7 +102,7 @@ struct MergedParametersEncoder: ParametersEncoding {
         self.encoders = encoders
     }
 
-    func encode(into urlRequest: URLRequest) -> URLRequest {
+    public func encode(into urlRequest: URLRequest) -> URLRequest {
         encoders.reduce(urlRequest) { (urlRequest, encoder: ParametersEncoding) -> URLRequest in
             encoder.encode(into: urlRequest)
         }
