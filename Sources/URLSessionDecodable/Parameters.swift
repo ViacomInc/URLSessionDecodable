@@ -93,7 +93,7 @@ private enum ContentType: String {
 public struct MergedParametersEncoder: ParametersEncoding {
 
     /// The encoders to merge.
-    let encoders: [ParametersEncoding]
+    public let encoders: [ParametersEncoding]
 
     /// Creates a new encoder.
     ///
