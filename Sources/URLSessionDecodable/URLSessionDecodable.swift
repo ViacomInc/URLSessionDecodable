@@ -23,11 +23,15 @@ extension URLSession {
         with url: URL,
         method: HTTPMethod,
         parameters: ParametersEncoding?,
+        bodyParameters: ParametersEncoding? = nil,
         headers: HTTPHeaders?,
         decoder: DataDecoder,
         completionHandler: @escaping (Result<T, URLSessionDecodableError>) -> Void
     ) -> URLSessionDataTask {
-        let request = self.request(with: url, method: method, parameters: parameters, headers: headers)
+        let request = self.request(with: url, method: method,
+                                   parameters: parameters,
+                                   bodyParameters: bodyParameters,
+                                   headers: headers)
         let task = dataTask(with: request) { data, response, error in
             guard let response = response, let data = data else {
                 if let error = error {
@@ -80,6 +84,7 @@ extension URLSession {
         with url: URL,
         method: HTTPMethod,
         parameters: ParametersEncoding?,
+        bodyParameters: ParametersEncoding?,
         headers: HTTPHeaders?
     ) -> URLRequest {
         var request = URLRequest(url: url)
@@ -88,6 +93,10 @@ extension URLSession {
 
         if let parameters = parameters {
             request = parameters.encode(into: request)
+        }
+
+        if let bodyParameters = bodyParameters {
+            request = bodyParameters.encode(into: request)
         }
 
         return request
