@@ -1,4 +1,4 @@
-//  Copyright © 2020 Viacom. All rights reserved.
+//  Copyright © 2022 Viacom. All rights reserved.
 
 import Foundation
 import os.log
@@ -13,7 +13,7 @@ public enum HTTPMethod: String {
 }
 
 extension URLSession {
-    //swiftlint:disable function_parameter_count
+    // swiftlint:disable function_parameter_count
     /// Creates a task that retrieves the contents of the specified URL, decodes the response,
     /// then calls a handler upon completion.
     ///
@@ -28,29 +28,39 @@ extension URLSession {
         completionHandler: @escaping (Result<T, URLSessionDecodableError>) -> Void
     ) -> URLSessionDataTask {
         let request = self.request(with: url, method: method, parameters: parameters, headers: headers)
+        return decodable(request: request, decoder: decoder, completionHandler: completionHandler)
+    }
+    // swiftlint:enable function_parameter_count
+
+    // swiftlint:disable force_unwrapping
+    public func decodable<T: Decodable>(
+        request: URLRequest,
+        decoder: DataDecoder,
+        completionHandler: @escaping (Result<T, URLSessionDecodableError>) -> Void
+    ) -> URLSessionDataTask {
         let task = dataTask(with: request) { data, response, error in
             guard let response = response, let data = data else {
                 if let error = error {
-                    os_log("%@", "Error while requesting \(String(describing: type(of: T.self))) \(url) - \(error)")
+                    os_log("%@", "Error while requesting \(String(describing: type(of: T.self))) \(request.url!) - \(error)")
                     completionHandler(.failure(URLSessionDecodableError.urlSession(error)))
                 } else {
-                    os_log("%@", "Unknown error while requesting \(url)))")
+                    os_log("%@", "Unknown error while requesting \(request.url!)))")
                     completionHandler(.failure(URLSessionDecodableError.unknown))
                 }
                 return
             }
 
             guard let httpResponse = response as? HTTPURLResponse else {
-                os_log("%@", "Non-http response \(String(describing: type(of: T.self))) \(url) - \(response)")
+                os_log("%@", "Non-http response \(String(describing: type(of: T.self))) \(request.url!) - \(response)")
                 completionHandler(.failure(URLSessionDecodableError.nonHTTPResponse(response)))
                 return
             }
 
-            completionHandler(Self.handle(response: httpResponse, data: data, decoder: decoder, url: url))
+            completionHandler(Self.handle(response: httpResponse, data: data, decoder: decoder, url: request.url!))
         }
         return task
     }
-    //swiftlint:enable function_parameter_count
+    // swiftlint:enable force_unwrapping
 
     private static func handle<T: Decodable>(
         response: HTTPURLResponse,
