@@ -28,39 +28,47 @@ extension URLSession {
         completionHandler: @escaping (Result<T, URLSessionDecodableError>) -> Void
     ) -> URLSessionDataTask {
         let request = self.request(with: url, method: method, parameters: parameters, headers: headers)
-        return decodable(request: request, decoder: decoder, completionHandler: completionHandler)
+        return decodable(with: request, decoder: decoder, completionHandler: completionHandler)
     }
     // swiftlint:enable function_parameter_count
 
-    // swiftlint:disable force_unwrapping
+    /// Creates a task that retrieves the contents of the specified URLRequest, decodes the response,
+    /// then calls a handler upon completion.
+    ///
+    /// The response data will be decoded to `T` type when `statusCode` is in range `200..<300`
+    /// or `E` for other status codes.
     public func decodable<T: Decodable>(
-        request: URLRequest,
+        with request: URLRequest,
         decoder: DataDecoder,
         completionHandler: @escaping (Result<T, URLSessionDecodableError>) -> Void
     ) -> URLSessionDataTask {
         let task = dataTask(with: request) { data, response, error in
+            guard let url = request.url else {
+                os_log("%@", "No url when requesting \(request)))")
+                completionHandler(.failure(URLSessionDecodableError.unknown))
+                return
+            }
             guard let response = response, let data = data else {
                 if let error = error {
-                    os_log("%@", "Error while requesting \(String(describing: type(of: T.self))) \(request.url!) - \(error)")
+                    os_log("%@", "Error while requesting \(String(describing: type(of: T.self))) \(url) - \(error)")
                     completionHandler(.failure(URLSessionDecodableError.urlSession(error)))
                 } else {
-                    os_log("%@", "Unknown error while requesting \(request.url!)))")
+                    os_log("%@", "Unknown error while requesting \(url)))")
                     completionHandler(.failure(URLSessionDecodableError.unknown))
                 }
                 return
             }
 
             guard let httpResponse = response as? HTTPURLResponse else {
-                os_log("%@", "Non-http response \(String(describing: type(of: T.self))) \(request.url!) - \(response)")
+                os_log("%@", "Non-http response \(String(describing: type(of: T.self))) \(url) - \(response)")
                 completionHandler(.failure(URLSessionDecodableError.nonHTTPResponse(response)))
                 return
             }
 
-            completionHandler(Self.handle(response: httpResponse, data: data, decoder: decoder, url: request.url!))
+            completionHandler(Self.handle(response: httpResponse, data: data, decoder: decoder, url: url))
         }
         return task
     }
-    // swiftlint:enable force_unwrapping
 
     private static func handle<T: Decodable>(
         response: HTTPURLResponse,
