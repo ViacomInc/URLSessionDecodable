@@ -14,11 +14,11 @@ public enum HTTPMethod: String {
 
 extension URLSession {
     // swiftlint:disable function_parameter_count
-    /// Creates a task that retrieves the contents of the specified URL, decodes the response,
+    /// Creates a task that retrieves the contents of the specified `url`, decodes the response,
     /// then calls a handler upon completion.
     ///
     /// The response data will be decoded to `T` type when `statusCode` is in range `200..<300`
-    /// or `E` for other status codes.
+    /// or `URLSessionDecodableError` for other status codes.
     public func decodable<T: Decodable>(
         with url: URL,
         method: HTTPMethod,
@@ -32,11 +32,11 @@ extension URLSession {
     }
     // swiftlint:enable function_parameter_count
 
-    /// Creates a task that retrieves the contents of the specified URLRequest, decodes the response,
+    /// Creates a task that retrieves the contents of the specified `request`, decodes the response,
     /// then calls a handler upon completion.
     ///
     /// The response data will be decoded to `T` type when `statusCode` is in range `200..<300`
-    /// or `E` for other status codes.
+    /// or `URLSessionDecodableError` for other status codes.
     public func decodable<T: Decodable>(
         with request: URLRequest,
         decoder: DataDecoder,
