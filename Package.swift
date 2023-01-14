@@ -1,14 +1,14 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.7
 
 import PackageDescription
 
 let package = Package(
     name: "URLSessionDecodable",
     platforms: [
-        .macOS(.v10_12),
-        .iOS(.v10),
-        .tvOS(.v10),
-        .watchOS(.v3)
+        .macOS(.v10_13),
+        .iOS(.v11),
+        .tvOS(.v11),
+        .watchOS(.v4)
     ],
     products: [
         .library(
