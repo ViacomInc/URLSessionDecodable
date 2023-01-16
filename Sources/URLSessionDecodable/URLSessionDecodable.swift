@@ -17,8 +17,7 @@ extension URLSession {
     /// Creates a task that retrieves the contents of the specified URL, decodes the response,
     /// then calls a handler upon completion.
     ///
-    /// The response data will be decoded to `T` type when `statusCode` is in range `200..<300`
-    /// or `E` for other status codes.
+    /// The response data will be decoded to `T` type when `statusCode` is in range `200..<300`.
     public func decodable<T: Decodable>(
         with url: URL,
         method: HTTPMethod,
@@ -51,6 +50,28 @@ extension URLSession {
         return task
     }
     //swiftlint:enable function_parameter_count
+
+    /// Retrieves the contents of the specified URL and returns decoded response.
+    ///
+    /// The response data will be decoded to `T` type when `statusCode` is in range `200..<300`.
+    @available(iOS 13.0.0, tvOS 13.0.0, macOS 10.15.0, watchOS 8.0, *)
+    public func decodable<T: Decodable>(
+        with url: URL,
+        method: HTTPMethod,
+        parameters: ParametersEncoding?,
+        headers: HTTPHeaders?,
+        decoder: DataDecoder
+    ) async throws -> T {
+        let request = self.request(with: url, method: method, parameters: parameters, headers: headers)
+        let (data, response) = try await data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            os_log("%@", "Non-http response \(String(describing: type(of: T.self))) \(url) - \(response)")
+            throw URLSessionDecodableError.nonHTTPResponse(response)
+        }
+        return try Self.handle(response: httpResponse, data: data, decoder: decoder, url: url).get()
+    }
+
+    // MARK: - Private
 
     private static func handle<T: Decodable>(
         response: HTTPURLResponse,

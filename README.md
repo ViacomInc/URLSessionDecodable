@@ -4,7 +4,7 @@
 
 A swift package for adding decoding functionality to `URLSession`. It is a very small but handful library, that solves the common pattern of deserialization of a response, and fallback on another message format in case of an HTTP error.
 
-We have been using it in some form over the years at former Viacom, now [ViacomCBS](https://www.viacomcbs.com/). Since Swift Package Manager support in Xcode 11.0, we use it on production in several projects.
+We have been using it in some form over the years at former Viacom, now [Paramount](https://www.paramount.com/). Since Swift Package Manager support in Xcode 11.0, we use it on production in several projects.
 
 ## Installation
 
@@ -49,7 +49,7 @@ func getFavoriteAnimals(urlSession: URLSession = .shared,
 	    switch result {
 	    	case .success(let animals):
 	    	   completionHandler(.success(animals))
-	    	case .failure(ler error):
+	    	case .failure(let error):
 	    	   let animalsFetchError: ErrorResponse? = error.decodeResponse(using: JSONDecoder())
 	    	   completionHandler(.failure(AnimalsError(errorResponse: animalsFetchError)))
 	    }
