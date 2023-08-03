@@ -73,10 +73,10 @@ final class ParametersTests: XCTestCase {
     }
 
     func testURLEncodingWithOrdering() {
-        let params: [(key: String, value: CustomStringConvertible)] = [
-            (key: "param2", value: 1),
-            (key: "param3", value: "foo"),
-            (key: "param4", value: "bzz")
+        let params: [(key: String, value: Int)] = [
+            (key: "param2", value: 2),
+            (key: "param3", value: 3),
+            (key: "param4", value: 4)
         ]
         let request = URLRequest(url: URL(string: "www.viacom.com/test?param1=abc")!)
         let encodedUrl = URLParametersEncoder(parameters: params).encode(into: request).url!
@@ -84,9 +84,9 @@ final class ParametersTests: XCTestCase {
 
         let expectedParameters: [URLQueryItem] = [
             .init(name: "param1", value: "abc"),
-            .init(name: "param2", value: "1"),
-            .init(name: "param3", value: "foo"),
-            .init(name: "param4", value: "bzz")
+            .init(name: "param2", value: "2"),
+            .init(name: "param3", value: "3"),
+            .init(name: "param4", value: "4")
         ]
         XCTAssertEqual(queryItems, expectedParameters)
     }

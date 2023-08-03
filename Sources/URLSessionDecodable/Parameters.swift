@@ -45,16 +45,17 @@ public struct JSONParametersEncoder: ParametersEncoding {
 // MARK: - URL Encoding
 
 /// Encodes parameters adding them to the URL.
-public struct URLParametersEncoder<Parameters>: ParametersEncoding where Parameters: Collection<(key: String, value: CustomStringConvertible)> {
+public struct URLParametersEncoder<Value: CustomStringConvertible>: ParametersEncoding {
 
-    public let parameters: Parameters
+    public typealias Parameters = Collection<(key: String, value: Value)>
+    public let parameters: any Parameters
 
     /// Creates a new encoder.
     ///
     /// Any `CustomStringConvertible` parameters are supported now.
     ///
     /// - Parameter parameters: A collection of parameters.
-    public init(parameters: Parameters) {
+    public init(parameters: some Parameters) {
         self.parameters = parameters
     }
 
@@ -63,7 +64,6 @@ public struct URLParametersEncoder<Parameters>: ParametersEncoding where Paramet
               var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
             return urlRequest
         }
-
         let query = components.queryItems ?? []
         let newQueryItems = parameters.map { URLQueryItem(name: $0.key, value: $0.value.description) }
         components.queryItems = query + newQueryItems
