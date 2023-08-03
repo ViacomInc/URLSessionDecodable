@@ -45,16 +45,16 @@ public struct JSONParametersEncoder: ParametersEncoding {
 // MARK: - URL Encoding
 
 /// Encodes parameters adding them to the URL.
-public struct URLParametersEncoder: ParametersEncoding {
+public struct URLParametersEncoder<Parameters>: ParametersEncoding where Parameters: Collection<(key: String, value: CustomStringConvertible)> {
 
-    public let parameters: [String: String]
+    public let parameters: Parameters
 
     /// Creates a new encoder.
     ///
-    /// - Attention: Only `String` parameters are supported now.
+    /// Any `CustomStringConvertible` parameters are supported now.
     ///
-    /// - Parameter parameters: A dictionary of parameters.
-    public init(parameters: [String: String]) {
+    /// - Parameter parameters: A collection of parameters.
+    public init(parameters: Parameters) {
         self.parameters = parameters
     }
 
@@ -64,16 +64,14 @@ public struct URLParametersEncoder: ParametersEncoding {
             return urlRequest
         }
 
-        var request = urlRequest
-        var query: [URLQueryItem] = components.queryItems ?? []
-        parameters.forEach { name, value in
-            query.append(URLQueryItem(name: name, value: value))
-        }
-        components.queryItems = query
-        if let urlWithQuery = components.url {
-            request.url = urlWithQuery
-        }
+        let query = components.queryItems ?? []
+        let newQueryItems = parameters.map { URLQueryItem(name: $0.key, value: $0.value.description) }
+        components.queryItems = query + newQueryItems
 
+        guard let urlWithQuery = components.url else { return urlRequest }
+
+        var request = urlRequest
+        request.url = urlWithQuery
         return request
     }
 
