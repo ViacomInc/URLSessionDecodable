@@ -45,7 +45,7 @@ public struct JSONParametersEncoder: ParametersEncoding {
 // MARK: - URL Encoding
 
 /// Encodes parameters adding them to the URL.
-public struct URLParametersEncoder<Parameters>: ParametersEncoding where Parameters: Collection<(key: String, value: String)> {
+public struct URLParametersEncoder<Parameters>: ParametersEncoding where Parameters: Collection<(key: String, value: CustomStringConvertible)> {
 
     public let parameters: Parameters
 

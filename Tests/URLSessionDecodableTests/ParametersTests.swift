@@ -73,8 +73,8 @@ final class ParametersTests: XCTestCase {
     }
 
     func testURLEncodingWithOrdering() {
-        let params: [(key: String, value: String)] = [
-            (key: "param2", value: "2"),
+        let params: [(key: String, value: CustomStringConvertible)] = [
+            (key: "param2", value: 2),
             (key: "param3", value: "3"),
             (key: "param4", value: "4")
         ]
