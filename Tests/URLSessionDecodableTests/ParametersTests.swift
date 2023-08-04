@@ -3,27 +3,27 @@ import XCTest
 
 final class ParametersTests: XCTestCase {
 
-    func testURLEncoding() {
+    func testURLEncoding() throws {
         let params = [
             "param1": "1",
             "param2": "abc"
         ]
-        let request = URLRequest(url: URL(string: "www.viacom.com/test")!)
-        let encodedUrl = URLParametersEncoder(parameters: params).encode(into: request).url!
-        let queryItems = URLComponents(url: encodedUrl, resolvingAgainstBaseURL: false)!.queryItems!
+        let request = try URLRequest(url: XCTUnwrap(URL(string: "www.viacom.com/test")))
+        let encodedUrl = try XCTUnwrap(URLParametersEncoder(parameters: params).encode(into: request).url)
+        let queryItems = try XCTUnwrap(URLComponents(url: encodedUrl, resolvingAgainstBaseURL: false)?.queryItems)
         params.forEach { key, value in
             XCTAssert(queryItems.contains(URLQueryItem(name: key, value: value)))
         }
     }
 
-    func testURLEncodingWithExistingParameters() {
+    func testURLEncodingWithExistingParameters() throws {
         let params = [
             "param1": "1",
             "param2": "abc"
         ]
-        let request = URLRequest(url: URL(string: "www.viacom.com/test?param1=0&param3=foo")!)
-        let encodedUrl = URLParametersEncoder(parameters: params).encode(into: request).url!
-        let queryItems = URLComponents(url: encodedUrl, resolvingAgainstBaseURL: false)!.queryItems!
+        let request = try URLRequest(url: XCTUnwrap(URL(string: "www.viacom.com/test?param1=0&param3=foo")))
+        let encodedUrl = try XCTUnwrap(URLParametersEncoder(parameters: params).encode(into: request).url)
+        let queryItems = try XCTUnwrap(URLComponents(url: encodedUrl, resolvingAgainstBaseURL: false)?.queryItems)
 
         let expectedParameters: [String: String] = [
             "param1": "1",
@@ -37,26 +37,26 @@ final class ParametersTests: XCTestCase {
         XCTAssertEqual(queryItems.count, 4) // params are appended currently
     }
 
-    func testURLEncodingWithEmptyParameters() {
+    func testURLEncodingWithEmptyParameters() throws{
         let params = [String: String]()
-        let request = URLRequest(url: URL(string: "www.viacom.com/test")!)
-        let encodedUrl = URLParametersEncoder(parameters: params).encode(into: request).url!
+        let request = try URLRequest(url: XCTUnwrap(URL(string: "www.viacom.com/test")))
+        let encodedUrl = try XCTUnwrap(URLParametersEncoder(parameters: params).encode(into: request).url)
         XCTAssertFalse(encodedUrl.absoluteString.contains("?"))
         XCTAssertNil(encodedUrl.query)
     }
 
-    func testJSONEcoding() {
+    func testJSONEcoding() throws {
         let params: [String: AnyHashable] = [
             "param1": 1,
             "param2": "abc"
         ]
-        let request = URLRequest(url: URL(string: "www.viacom.com/test")!)
+        let request = try URLRequest(url: XCTUnwrap(URL(string: "www.viacom.com/test")))
         let encodedRequest = JSONParametersEncoder(parameters: params).encode(into: request)
-        let decoded = try! JSONSerialization.jsonObject(with: encodedRequest.httpBody!) as! [String: AnyHashable]
+        let decoded = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(encodedRequest.httpBody)) as? [String: AnyHashable])
         XCTAssertEqual(decoded, params)
     }
 
-    func testMergedEncoding() {
+    func testMergedEncoding() throws {
         let params = [
             "param": "test",
         ]
@@ -64,23 +64,23 @@ final class ParametersTests: XCTestCase {
             URLParametersEncoder(parameters: params),
             JSONParametersEncoder(parameters: params)
         ])
-        let request = URLRequest(url: URL(string: "www.viacom.com/test")!)
+        let request = try URLRequest(url: XCTUnwrap(URL(string: "www.viacom.com/test")))
         let encodedRequest = encoder.encode(into: request)
-        let decoded = try! JSONSerialization.jsonObject(with: encodedRequest.httpBody!) as! [String: String]
+        let decoded = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(encodedRequest.httpBody)) as? [String: String])
 
         XCTAssertEqual(encodedRequest.url?.query, "param=test")
         XCTAssertEqual(decoded, params)
     }
 
-    func testURLEncodingWithOrdering() {
+    func testURLEncodingWithOrdering() throws {
         let params: [(key: String, value: CustomStringConvertible)] = [
             (key: "param2", value: 2),
             (key: "param3", value: "3"),
             (key: "param4", value: "4")
         ]
-        let request = URLRequest(url: URL(string: "www.viacom.com/test?param1=abc")!)
-        let encodedUrl = URLParametersEncoder(parameters: params).encode(into: request).url!
-        let queryItems = URLComponents(url: encodedUrl, resolvingAgainstBaseURL: false)!.queryItems!
+        let request = try URLRequest(url: XCTUnwrap(URL(string: "www.viacom.com/test?param1=abc")))
+        let encodedUrl = try XCTUnwrap(URLParametersEncoder(parameters: params).encode(into: request).url)
+        let queryItems = try XCTUnwrap(URLComponents(url: encodedUrl, resolvingAgainstBaseURL: false)?.queryItems)
 
         let expectedParameters: [URLQueryItem] = [
             .init(name: "param1", value: "abc"),
