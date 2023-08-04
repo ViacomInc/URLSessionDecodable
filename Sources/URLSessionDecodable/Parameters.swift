@@ -45,17 +45,16 @@ public struct JSONParametersEncoder: ParametersEncoding {
 // MARK: - URL Encoding
 
 /// Encodes parameters adding them to the URL.
-public struct URLParametersEncoder<Value: CustomStringConvertible>: ParametersEncoding {
+public struct URLParametersEncoder<Parameters>: ParametersEncoding where Parameters: Collection<(key: String, value: String)> {
 
-    public typealias Parameters = Collection<(key: String, value: Value)>
-    public let parameters: any Parameters
+    public let parameters: Parameters
 
     /// Creates a new encoder.
     ///
     /// Any `CustomStringConvertible` parameters are supported now.
     ///
     /// - Parameter parameters: A collection of parameters.
-    public init(parameters: some Parameters) {
+    public init(parameters: Parameters) {
         self.parameters = parameters
     }
 

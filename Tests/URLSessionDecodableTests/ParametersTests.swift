@@ -73,10 +73,10 @@ final class ParametersTests: XCTestCase {
     }
 
     func testURLEncodingWithOrdering() {
-        let params: [(key: String, value: Int)] = [
-            (key: "param2", value: 2),
-            (key: "param3", value: 3),
-            (key: "param4", value: 4)
+        let params: [(key: String, value: String)] = [
+            (key: "param2", value: "2"),
+            (key: "param3", value: "3"),
+            (key: "param4", value: "4")
         ]
         let request = URLRequest(url: URL(string: "www.viacom.com/test?param1=abc")!)
         let encodedUrl = URLParametersEncoder(parameters: params).encode(into: request).url!
