@@ -7,24 +7,24 @@ extension URLSessionDecodableError: CustomNSError {
 
     public var errorCode: Int {
         switch self {
-        case .unknown: 1
-        case .urlSession: 2
-        case .deserialization: 3
-        case .nonHTTPResponse: 4
-        case .serverResponse: 5
+        case .unknown: return 1
+        case .urlSession: return 2
+        case .deserialization: return 3
+        case .nonHTTPResponse: return 4
+        case .serverResponse: return 5
         }
     }
 
     public var errorUserInfo: [String: Any] {
         switch self {
         case let .urlSession(error):
-            [NSUnderlyingErrorKey: error]
+            return [NSUnderlyingErrorKey: error]
         case let .deserialization(deserialization):
-            deserialization.underlyingError.map {
+            return deserialization.underlyingError.map {
                 [NSUnderlyingErrorKey: $0]
             } ?? [:]
         case .unknown, .nonHTTPResponse, .serverResponse:
-            [:]
+            return [:]
         }
     }
 }
