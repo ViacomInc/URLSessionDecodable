@@ -60,7 +60,7 @@ extension URLSession {
         method: HTTPMethod,
         parameters: ParametersEncoding?,
         headers: HTTPHeaders?,
-        decoder: @autoclosure @escaping @Sendable () -> DataDecoder
+        decoder: @autoclosure @Sendable () -> DataDecoder
     ) async throws -> T {
         let request = self.request(with: url, method: method, parameters: parameters, headers: headers)
         let (data, response) = try await data(for: request)
@@ -76,7 +76,7 @@ extension URLSession {
     private static func handle<T: Decodable>(
         response: HTTPURLResponse,
         data: Data,
-        decoder: @autoclosure @escaping @Sendable () -> DataDecoder,
+        decoder: @autoclosure @Sendable () -> DataDecoder,
         url: URL
     ) -> Result<T, URLSessionDecodableError> {
         guard 200..<300 ~= response.statusCode else {
