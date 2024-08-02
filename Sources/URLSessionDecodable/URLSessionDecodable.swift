@@ -23,8 +23,8 @@ extension URLSession {
         method: HTTPMethod,
         parameters: ParametersEncoding?,
         headers: HTTPHeaders?,
-        decoder: DataDecoder,
-        completionHandler: @escaping (Result<T, URLSessionDecodableError>) -> Void
+        decoder: @autoclosure @escaping @Sendable () -> DataDecoder,
+        completionHandler: @escaping @Sendable (Result<T, URLSessionDecodableError>) -> Void
     ) -> URLSessionDataTask {
         let request = self.request(with: url, method: method, parameters: parameters, headers: headers)
         let task = dataTask(with: request) { data, response, error in
@@ -45,7 +45,7 @@ extension URLSession {
                 return
             }
 
-            completionHandler(Self.handle(response: httpResponse, data: data, decoder: decoder, url: url))
+            completionHandler(Self.handle(response: httpResponse, data: data, decoder: decoder(), url: url))
         }
         return task
     }
@@ -60,7 +60,7 @@ extension URLSession {
         method: HTTPMethod,
         parameters: ParametersEncoding?,
         headers: HTTPHeaders?,
-        decoder: DataDecoder
+        decoder: @autoclosure @escaping @Sendable () -> DataDecoder
     ) async throws -> T {
         let request = self.request(with: url, method: method, parameters: parameters, headers: headers)
         let (data, response) = try await data(for: request)
@@ -68,7 +68,7 @@ extension URLSession {
             os_log("%@", "Non-http response \(String(describing: type(of: T.self))) \(url) - \(response)")
             throw URLSessionDecodableError.nonHTTPResponse(response)
         }
-        return try Self.handle(response: httpResponse, data: data, decoder: decoder, url: url).get()
+        return try Self.handle(response: httpResponse, data: data, decoder: decoder(), url: url).get()
     }
 
     // MARK: - Private
@@ -76,7 +76,7 @@ extension URLSession {
     private static func handle<T: Decodable>(
         response: HTTPURLResponse,
         data: Data,
-        decoder: DataDecoder,
+        decoder: @autoclosure @escaping @Sendable () -> DataDecoder,
         url: URL
     ) -> Result<T, URLSessionDecodableError> {
         guard 200..<300 ~= response.statusCode else {
@@ -87,7 +87,7 @@ extension URLSession {
         }
 
         do {
-            return try .success(decoder.decode(T.self, from: data))
+            return try .success(decoder().decode(T.self, from: data))
         } catch {
             os_log("%@", "Error while decoding \(String(describing: type(of: T.self))) \(error)")
             let deserializationError = URLSessionDecodableError.Deserialization(statusCode: response.statusCode,

@@ -1,13 +1,13 @@
-// swift-tools-version:5.7
+// swift-tools-version:5.10
 
 import PackageDescription
 
 let package = Package(
     name: "URLSessionDecodable",
     platforms: [
-        .macOS(.v10_13),
-        .iOS(.v11),
-        .tvOS(.v11),
+        .macOS(.v13),
+        .iOS(.v12),
+        .tvOS(.v12),
         .watchOS(.v4)
     ],
     products: [
@@ -15,16 +15,21 @@ let package = Package(
             name: "URLSessionDecodable",
             targets: ["URLSessionDecodable"])
     ],
-    dependencies: [
-        // Dependencies declare other packages that this package depends on.
-        // .package(url: /* package url */, from: "1.0.0"),
-    ],
+    dependencies: [],
     targets: [
         .target(
             name: "URLSessionDecodable",
-            dependencies: []),
+            dependencies: [],
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency")
+            ]
+        ),
         .testTarget(
             name: "URLSessionDecodableTests",
-            dependencies: ["URLSessionDecodable"])
+            dependencies: ["URLSessionDecodable"],
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency")
+            ]
+        ),
     ]
 )
