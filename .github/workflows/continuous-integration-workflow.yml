@@ -10,13 +10,11 @@ on:
 jobs:
   tests:
     name: Tests
-    runs-on:  macOS-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Select Xcode 14.2
-        run: sudo xcode-select -s /Applications/Xcode_14.2.app
-      - name: Run swiftlint
-        run: swiftlint
+      - name: Select Xcode 15.4
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app
       - name: Run tests
         run: swift test
