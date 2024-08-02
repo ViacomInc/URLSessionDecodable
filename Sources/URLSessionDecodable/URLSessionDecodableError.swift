@@ -9,14 +9,14 @@ public enum URLSessionDecodableError: Error {
     case nonHTTPResponse(URLResponse)
     case serverResponse(ServerResponse)
 
-    public struct Deserialization {
+    public struct Deserialization: Sendable {
         public let statusCode: Int
         public let url: URL
         public let responseBody: Data
         public let underlyingError: Error?
     }
 
-    public struct ServerResponse {
+    public struct ServerResponse: Sendable {
         public let statusCode: Int
         public let url: URL
         public let responseBody: Data
