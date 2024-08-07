@@ -10,6 +10,7 @@ public enum HTTPMethod: String {
     case get
     case post
     case put
+    case patch
 }
 
 extension URLSession {
