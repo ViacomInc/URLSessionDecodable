@@ -10,11 +10,11 @@ on:
 jobs:
   tests:
     name: Tests
-    runs-on: macos-latest
+    runs-on: XC16.1
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Select Xcode 15.4
-        run: sudo xcode-select -s /Applications/Xcode_15.4.app
+      - name: Select Xcode 16.1
+        run: sudo xcode-select -s /Applications/Xcode_16.1.app
       - name: Run tests
         run: swift test
